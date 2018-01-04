@@ -24,21 +24,21 @@ const { cos, sin, atan2, sqrt, PI } = Math
 
 const R = 6371000;
 
-Number.prototype.toRadians = function(number) {
-  return this.valueOf() * (PI/180)
+function toRadians(seconds) {
+  return (seconds / 3600) * (PI / 180)
 }
 
 function distance(lat1, lon1, lat2, lon2) {
   var R = 6371000; // metres
-  var φ1 = lat1.toRadians();
-  var φ2 = lat2.toRadians();
-  var Δφ = (lat2-lat1).toRadians();
-  var Δλ = (lon2-lon1).toRadians();
+  var φ1 = toRadians(lat1);
+  var φ2 = toRadians(lat2);
+  var Δφ = toRadians(lat2-lat1);
+  var Δλ = toRadians(lon2-lon1);
   
-  var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var a = sin(Δφ/2) * sin(Δφ/2) +
+          cos(φ1) * cos(φ2) *
+          sin(Δλ/2) * sin(Δλ/2);
+  var c = 2 * atan2(sqrt(a), sqrt(1-a));
   
   var d = R * c;
 
@@ -47,7 +47,7 @@ function distance(lat1, lon1, lat2, lon2) {
 
 function insert(distance, airport, array) {
   array.push({ airport, distance })
-  array.sort((a, b) => a.distance - b.distance)
+  array.sort((a, b) => a.distance < b.distance ? -1 : b.distance < a.distance ? 1 : 0)
   if (array.length > 3) { array.pop() }
 }
 
@@ -57,7 +57,6 @@ for (let i = 0; i < airports.length; i++) {
   const airport1 = airports[i]
   const nearest = []
   const entry = { base: airport1, nearest }
-
   results.push(entry)
 
   for (let j = 0; j < airports.length; j++) {
